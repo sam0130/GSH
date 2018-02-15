@@ -8,42 +8,50 @@ clear variables; clc; close all;
 D = 2;
 
 % INPUT: strain rate tensor
-a = -0.2; b = 0; d = -0.2;
-v = [a b; b d];
+a = -0.2; b = -0.4 ; d = -0.2;
+v1 = [a b;
+      b d];
 
+v2 = [-0.2 -0.0;    
+       -0.0  -0.2 ];   
+
+% v = @(t) v1 + (v2-v1)*heaviside(t-0.5);
+   
 % Some useful scalars and tensors
 % Copy same into odefunc.m
-v_vol = (1/D)*trace(v)*eye(D);                  % volumetric
-v_dev = v - v_vol;                              % deviatoric/traceless
-v_s = sqrt(sum(sum(v_dev.^2)));                 % second invariant
-v_ll = trace(v);
+% v_vol = (1/D)*trace(v)*eye(D);                  % volumetric
+% v_dev = v - v_vol;                              % deviatoric/traceless
+% v_s = sqrt(sum(sum(v_dev.^2)));                 % second invariant
+% v_ll = trace(v);
 
 % Initial values of time-dependent variables
 rho0 = 0.5;                         % density/volume fraction
-Tg0 = 1;                            % Granular Temperature
+Tg0 = 0.5;                            % Granular Temperature
 u_dev0 = zeros(D);                  % Deviatoric strain
 u_delta0 = 0;                       % Isotropic strain (-u_11 - u_22 - u_33)
 
 y0 = [rho0; Tg0; u_dev0(:); u_delta0]';
-tspan = [0 1];
+tspan1 = [0 1.5];
+tspan2 = [1.5 5];
 
 % solve time dependent values
-[t, y] = ode45(@(t,y) odefunc(t, y, v, D), tspan , y0);
-rho = y(:,1);
-Tg = y(:,2);
+[t1, y1] = ode45(@(t1,y1) odefunc(t1, y1, v1, D), tspan1 , y0);
+[t2, y2] = ode45(@(t2,y2) odefunc(t2, y2, v2, D), tspan2 , y1(end,:));
+rho = [y1(:,1); y2(:,1)];
+Tg = [y1(:,2); y2(:,2)];
 u_dev = y(:,3:6);
 u_delta = y(:,7);
 
 % Evaluating stresses
-A = 1; B = 1; g_p = 1;  eta_1 = 1;
-u_s = (u_dev(:,1).^2 + u_dev(:,2).^2 + u_dev(:,3).^2 + u_dev(:,4).^2).^0.5; % second invariant of dev strain tensor
-P_delta = (u_delta.^0.5).*(B*u_delta + A*u_s.^2./2./u_delta);               % 1/D*trace(elastic stress)
-stress_elas_vol = P_delta*reshape(eye(2)',1,4);                             % P_delta*I
-stress_elas_dev = (-2*A*u_delta.^0.5).*u_dev;
-stress_elas = stress_elas_vol + stress_elas_dev;
-P_T = (g_p * Tg.^2)*reshape(eye(2)',1,4);                                   % Thermal/fluid pressure
-stress_vis = eta_1*Tg*reshape(v_dev',1,4);                                  % viscous stress
-stress_tot = stress_elas + P_T - stress_vis;                                % total stress tensor
+% A = 1; B = 1; g_p = 1;  eta_1 = 1;
+% u_s = (u_dev(:,1).^2 + u_dev(:,2).^2 + u_dev(:,3).^2 + u_dev(:,4).^2).^0.5; % second invariant of dev strain tensor
+% P_delta = (u_delta.^0.5).*(B*u_delta + A*u_s.^2./2./u_delta);               % 1/D*trace(elastic stress)
+% stress_elas_vol = P_delta*reshape(eye(2)',1,4);                             % P_delta*I
+% stress_elas_dev = (-2*A*u_delta.^0.5).*u_dev;
+% stress_elas = stress_elas_vol + stress_elas_dev;
+% P_T = (g_p * Tg.^2)*reshape(eye(2)',1,4);                                   % Thermal/fluid pressure
+% stress_vis = eta_1*Tg*reshape(v_dev',1,4);                                  % viscous stress
+% stress_tot = stress_elas + P_T - stress_vis;                                % total stress tensor
 
 %% plotting
 figure
