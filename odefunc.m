@@ -9,7 +9,7 @@ v_ll = trace(v);
 v_dev = reshape(v_dev',4,1);
 
 % transport coefficients
-lambda = 1;
+lambda = 1;                             
 lambda1 = 1;
 Rt = 1;
 f = 1;
@@ -22,8 +22,8 @@ u_dev = y(3:6);
 u_delta = y(7);                              % delta = -trace(u_ij)
 
 
-dydt(1) = -rho*v_ll;
-dydt(2) = Rt*(-Tg^2 + (f^2)*(v_s^2));
-dydt(3:6) = v_dev - lambda*Tg*u_dev;
-dydt(7) = -v_ll + alpha1*sum(sum(u_dev.*v_dev)) - lambda1*Tg*u_delta;
+dydt(1) = -rho*v_ll;                         % Mass bal   
+dydt(2) = Rt*(-Tg^2 + (f^2)*(v_s^2));        % Tg   
+dydt(3:6) = v_dev - lambda*Tg*u_dev;         % Deviatoric Strain   
+dydt(7) = -v_ll + alpha1*sum(sum(u_dev.*v_dev)) - lambda1*Tg*u_delta;   % Volumetric Strain
 end
