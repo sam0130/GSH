@@ -1,4 +1,4 @@
-function [stress_elas, P_T, stress_vis, stress_tot ] = stresses( v1, y1, D)
+function [stress_elas,P_T,stress_vis,stress_tot] = stresses(v1,y1,D)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 % Input variables = v_ij, u_delta, u_dev, Tg (simply: v, y1, y2)
@@ -25,6 +25,5 @@ P_T = (g_p * Tg.^2)*reshape(eye(2)',1,4);                                   % Th
 
 stress_vis = eta_1*y1(:,2)*reshape(v_dev',1,4);                             % viscous stress
 stress_tot = stress_elas + P_T - stress_vis;                                % total stress tensor
-
 end
 

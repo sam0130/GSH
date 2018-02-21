@@ -7,11 +7,11 @@ clear variables; clc; close all;
 D = 2;
 
 % INPUT: strain rate tensor
-v1 = [-0.3 -0.4;
-    -0.4 -0.6];
+v1 = [-0.1 -0.0;
+    -0.0 -0.1];
 
-v2 = [-0.3 -0.0;
-    -0.0  -0.3 ];
+v2 = [-0.0 -0.0;
+    -0.0  -0.0 ];
 
 % Initial values of time-dependent variables
 rho0 = 0.5;                         % density/volume fraction
