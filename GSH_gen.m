@@ -7,11 +7,11 @@ clear variables; clc; close all;
 D = 2;
 
 % INPUT: strain rate tensor
-v1 = [-0.0 -0.3;
-    -0.3 -0.0];
+s1 = [-0.2 -0.0;
+    -0.0 -0.2];
 
-v2 = [-0.0 -0.0;
-    -0.0  -0.0 ];
+s2 = [-0.0 -0.2;
+    -0.2  -0.0 ];
 
 % Initial values of time-dependent variables
 rho0 = 0.5;                         % density/volume fraction
@@ -21,11 +21,11 @@ u_delta0 = 0;                       % Isotropic strain (-u_11-u_22-u_33)
 
 y0 = [rho0; Tg0; u_dev0(:); u_delta0]';
 tspan1 = 0:0.001:15;
-tspan2 = 15:0.001:30;
+tspan2 = 15:0.001:40;
 
 % solve time dependent values
-[t1, y1] = ode45(@(t1,y1) odefunc(t1, y1, v1, D), tspan1 , y0);
-[t2, y2] = ode45(@(t2,y2) odefunc(t2, y2, v2, D), tspan2 , y1(end,:));
+[t1, y1] = ode45(@(t1,y1) odefunc(t1, y1, s1, D), tspan1 , y0);
+[t2, y2] = ode45(@(t2,y2) odefunc(t2, y2, s2, D), tspan2 , y1(end,:));
 rho = [y1(:,1); y2(:,1)];
 Tg = [y1(:,2); y2(:,2)];
 u_dev = [y1(:,3:6); y2(:,3:6)] ;
@@ -34,80 +34,82 @@ u_delta = [y1(:,7); y2(:,7)];
 % Evaluating stresses
 global A B g_p eta_1
 A = 1; B = 1; g_p = 1;  eta_1 = 1;
-[stress_elas1, P_T1, stress_vis1, stress_tot1 ] = stresses( v1, y1, D);
-[stress_elas2, P_T2, stress_vis2, stress_tot2 ] = stresses( v2, y2, D);
+[stress_elas1, P_T1, stress_vis1, stress_tot1 ] = stresses( s1, y1, D);
+[stress_elas2, P_T2, stress_vis2, stress_tot2 ] = stresses( s2, y2, D);
 stress_elas = [stress_elas1; stress_elas2];
 P_T = [P_T1; P_T2];
 stress_vis = [stress_vis1; stress_vis2];
 stress_tot = [stress_tot1; stress_tot2];
 %% plotting
+
 figure
+set(gca,'FontSize',18)
 subplot(1,3,1)
-plot([t1; t2], rho)
+plot([t1; t2], rho,'LineWidth',2)
 xlabel('t')
 ylabel('\rho')
 subplot(1,3,2)
-plot([t1; t2], Tg)
+plot([t1; t2], Tg,'LineWidth',2)
 xlabel('t')
 ylabel('Tg')
 subplot(1,3,3)
-plot([t1; t2], u_delta)
+plot([t1; t2], u_delta, 'LineWidth',2)
 xlabel('t')
 ylabel('\Delta')
 
 figure
 subplot(2,2,1)
-plot([t1; t2], u_dev(:,1))
+plot([t1; t2], u_dev(:,1), 'LineWidth',2)
 xlabel('t')
 ylabel('u_{11}^*')
 subplot(2,2,2)
-plot([t1; t2], u_dev(:,2))
+plot([t1; t2], u_dev(:,2), 'LineWidth',2)
 xlabel('t')
 ylabel('u_{12}^*')
 subplot(2,2,3)
-plot([t1; t2], u_dev(:,3))
+plot([t1; t2], u_dev(:,3), 'LineWidth',2)
 xlabel('t')
 ylabel('u_{21}^*')
 subplot(2,2,4)
-plot([t1; t2], u_dev(:,4))
+plot([t1; t2], u_dev(:,4), 'LineWidth',2)
 xlabel('t')
 ylabel('u_{22}^*')
 
 figure
 subplot(2,2,1)
 hold on
-plot([t1; t2], stress_tot(:,1))
-plot([t1; t2], stress_elas(:,1))
-plot([t1; t2], P_T(:,1))
-plot([t1; t2], -stress_vis(:,1))
+plot([t1; t2], stress_tot(:,1), 'LineWidth',2)
+plot([t1; t2], stress_elas(:,1), 'LineWidth',2)
+plot([t1; t2], P_T(:,1), 'LineWidth',2)
+plot([t1; t2], -stress_vis(:,1), 'LineWidth',2)
 legend('\sigma_{11}','\pi_{11}','P_T','-\eta_1T_gv_{11}^*')
 hold off
 xlabel('t')
 %ylabel('\sigma_{11}^*')
 subplot(2,2,2)
 hold on
-plot([t1; t2], stress_tot(:,2))
-plot([t1; t2], stress_elas(:,2))
-plot([t1; t2], -stress_vis(:,2))
+plot([t1; t2], stress_tot(:,2), 'LineWidth',2)
+plot([t1; t2], stress_elas(:,2), 'LineWidth',2)
+plot([t1; t2], -stress_vis(:,2), 'LineWidth',2)
 legend('\sigma_{12}','\pi_{12}','-\eta_1T_gv_{12}^*')
 hold off
 xlabel('t')
 %ylabel('stress')
 subplot(2,2,3)
 hold on
-plot([t1; t2], stress_tot(:,3))
-plot([t1; t2], stress_elas(:,3))
-plot([t1; t2], -stress_vis(:,3))
+plot([t1; t2], stress_tot(:,3), 'LineWidth',2)
+plot([t1; t2], stress_elas(:,3), 'LineWidth',2)
+plot([t1; t2], -stress_vis(:,3), 'LineWidth',2)
 legend('\sigma_{21}','\pi_{21}','-\eta_1T_gv_{21}^*')
 hold off
 xlabel('t')
 %ylabel('\sigma_{21}^*')
 subplot(2,2,4)
 hold on
-plot([t1; t2], stress_tot(:,4))
-plot([t1; t2], stress_elas(:,4))
-plot([t1; t2], P_T(:,4))
-plot([t1; t2], -stress_vis(:,4))
+plot([t1; t2], stress_tot(:,4), 'LineWidth',2)
+plot([t1; t2], stress_elas(:,4), 'LineWidth',2)
+plot([t1; t2], P_T(:,4), 'LineWidth',2)
+plot([t1; t2], -stress_vis(:,4), 'LineWidth',2)
 legend('\sigma_{22}','\pi_{22}','P_T','-\eta_1T_gv_{22}^*')
 hold off
 xlabel('t')
